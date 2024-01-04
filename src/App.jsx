@@ -40,7 +40,7 @@ function App() {
         </h1>
       </div>
       <div className="flex flex-wrap p-[12px] gap-[10px] justify-center items-center font-sans">
-        <div className="flex flex-col justify-center items-center min-w-[150px] w-[250px] p-[10px] rounded-[10px] bg-[#171515] h-[135px] gap-2 font-sans">
+        <div className="flex flex-col justify-center items-center w-[250px] p-[10px] rounded-[10px] bg-[#171515] h-[135px] gap-2 font-sans">
           <form
             className="flex flex-col gap-2 justify-center items-center"
             onSubmit={handleSubmitNewUser}

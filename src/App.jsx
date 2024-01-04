@@ -1,32 +1,36 @@
-import { useEffect, useState } from "react";
-import BoxUser from "./components/BoxUser/BoxUser";
+import { useState } from "react";
 import { GoPlus } from "react-icons/go";
+import BoxUser from "./components/BoxUser/BoxUser";
 
 function App() {
   const [user, setNewUser] = useState("");
-  const [dataUser, setNewDataUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [dataUsers, setDataUsers] = useState([]);
 
-  const handleNewUser = (e) => {
-    setNewUser(e.target.value);
-  };
+  const handleSubmitNewUser = async (e) => {
+    e.preventDefault();
+    setNewUser("");
+    setError(null);
 
-  const fetchData = async () => {
     try {
-      const response = await fetch(`https://api.github.com/users/${user}`);
-      const data = await response.json();
-      setNewDataUser(data);
-      console.log(data);
+      const userData = await useFetch(user);
+      setDataUsers((prevDataUsers) => [...prevDataUsers, userData]);
     } catch (error) {
-      console.error("Erro ao buscar usuário:", error);
-      setNewDataUser(null);
+      setError(
+        "Usuário não encontrado!"
+      );
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  async function useFetch(user) {
+    const response = await fetch(`https://api.github.com/users/${user}`);
+    if (!response.ok) {
+      throw new Error("Erro ao buscar dados");
+    }
 
-    fetchData();
-  };
+    const data = await response.json();
+    return data;
+  }
 
   return (
     <>
@@ -35,11 +39,11 @@ function App() {
           Pesquisar usuários do GitHub
         </h1>
       </div>
-      <div className="flex flex-wrap p-[15px] gap-[10px] justify-center items-center font-sans">
+      <div className="flex flex-wrap p-[12px] gap-[10px] justify-center items-center font-sans">
         <div className="flex flex-col justify-center items-center min-w-[150px] w-[250px] p-[10px] rounded-[10px] bg-[#171515] h-[135px] gap-2 font-sans">
           <form
             className="flex flex-col gap-2 justify-center items-center"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmitNewUser}
           >
             <label htmlFor="user" className="flex flex-col gap-1">
               <span className="text-white">Usuário:</span>
@@ -47,7 +51,7 @@ function App() {
                 type="text"
                 placeholder="Digite o usuário"
                 value={user}
-                onChange={handleNewUser}
+                onChange={(e) => setNewUser(e.target.value)}
                 className="rounded-[4px] outline-none px-1"
               />
             </label>
@@ -59,6 +63,16 @@ function App() {
             </button>
           </form>
         </div>
+        {dataUsers.length > 0 &&
+          dataUsers.map((userData) => (
+            <BoxUser
+              key={userData.id}
+              name={userData.name}
+              repositories={userData.public_repos}
+              avatar_url={userData.avatar_url} // Correção aqui
+            />
+          ))}
+        {error && <p className="text-red-500">{error}</p>}
       </div>
     </>
   );
